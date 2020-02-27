@@ -1,26 +1,52 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux'; 
+import { Switch, Route, Redirect } from 'react-router-dom';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+import './Bootstrap/bootstrap.min.css';
+// import 'bootstrap/dist/css/bootstrap.min.css';
 
-export default App;
+import { auto } from './Store'
+
+import Navigation from './Components/Navigation';
+import Login from './Components/Login';
+import Logout from './Components/Logout';
+import Shop from './Components/Shop';
+// import Form from './Components/Form';
+
+const App = props => {
+	useEffect(() => props.auto(), []);
+
+	let routes = (
+		<Switch>
+			<Route path='/' exact component={Login} />
+			<Route path='/login' component={Login} />
+			<Redirect to='/' />
+		</Switch>
+	);
+	if (props.authenticated) {
+		routes = (
+			<Switch>
+				<Route path='/shop' component={Shop} />
+				<Route path='/logout' component={Logout} />
+				<Redirect to='/shop' />
+			</Switch>
+		);
+	};
+
+	return (
+		<>
+			<Navigation />
+			{routes}
+		</>
+	);
+};
+
+const mapState = state => ({
+	authenticated: state.auth.token !== null
+});
+
+const mapDispatch = dispatch => ({
+	auto: () => dispatch(auto())
+}); 
+
+export default connect(mapState, mapDispatch)(App);
